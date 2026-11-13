@@ -1,0 +1,8 @@
+{
+  "RouteOrder": "block-direct-proxy",
+  "BlockSites": [
+    "geosite:category-ads",
+    "geosite:nix-ads"
+  ],
+  "BlockIp": []
+}

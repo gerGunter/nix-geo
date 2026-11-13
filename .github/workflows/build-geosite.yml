@@ -1,0 +1,38 @@
+name: Build NixVPN GeoSite
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 5 * * *" # once daily, 05:17 UTC
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/**'
+      - 'tests/**'
+      - '.github/workflows/build-geosite.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Unit tests (offline)
+        run: python -m unittest discover -s tests -v
+      - name: Download upstream files, verify SHA256, merge and validate
+        run: python scripts/build.py
+      - name: Upload candidate for manual review (does NOT publish to production)
+        uses: actions/upload-artifact@v4
+        with:
+          name: nix-geo-candidate
+          path: |
+            dist/geosite.dat
+            dist/manifest.json
+          if-no-files-found: error
+          retention-days: 14
